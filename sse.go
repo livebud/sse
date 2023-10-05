@@ -32,3 +32,7 @@ func (e *Event) Format() *bytes.Buffer {
 	b.WriteByte('\n')
 	return b
 }
+
+func (e *Event) String() string {
+	return e.Format().String()
+}

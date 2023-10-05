@@ -1,12 +1,17 @@
 package sse
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 )
 
+type Publisher interface {
+	Publish(ctx context.Context, event *Event) error
+}
+
 // Create a sender from a response writer
-func Create(w http.ResponseWriter) (*Sender, error) {
+func Create(w http.ResponseWriter) (Publisher, error) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		return nil, fmt.Errorf("sse: response writer is not a flusher")
@@ -17,21 +22,23 @@ func Create(w http.ResponseWriter) (*Sender, error) {
 	headers.Add(`Cache-Control`, `no-cache`)
 	headers.Add(`Connection`, `keep-alive`)
 	headers.Add(`Access-Control-Allow-Origin`, "*")
+	w.WriteHeader(http.StatusOK)
 	// Flush the headers
 	flusher.Flush()
-	return &Sender{w, flusher}, nil
+	return &publisher{w, flusher}, nil
 }
 
-type Sender struct {
+type publisher struct {
 	w http.ResponseWriter
 	f http.Flusher
 }
 
-func (s *Sender) Send(evt *Event) (int, error) {
-	n, err := s.w.Write(evt.Format().Bytes())
-	if err != nil {
-		return n, err
+var _ Publisher = (*publisher)(nil)
+
+func (p *publisher) Publish(ctx context.Context, event *Event) error {
+	if _, err := p.w.Write(event.Format().Bytes()); err != nil {
+		return fmt.Errorf("sse: unable to publish event %s: %w", event, err)
 	}
-	s.f.Flush()
-	return n, nil
+	p.f.Flush()
+	return nil
 }

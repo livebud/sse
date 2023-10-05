@@ -24,7 +24,7 @@ func TestHandlerClient(t *testing.T) {
 	stream, err := sse.Dial(log, server.URL)
 	is.NoErr(err)
 	defer stream.Close()
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Type: "test",
 		Data: []byte("hello"),
 	})
@@ -46,15 +46,15 @@ func TestMultipleEvents(t *testing.T) {
 	stream, err := sse.Dial(log, server.URL)
 	is.NoErr(err)
 	defer stream.Close()
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Data: []byte("1"),
 	})
 	is.NoErr(err)
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Data: []byte("2"),
 	})
 	is.NoErr(err)
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Data: []byte("3"),
 	})
 	is.NoErr(err)
@@ -82,15 +82,15 @@ func TestNoLockup(t *testing.T) {
 	stream, err := sse.Dial(log, server.URL)
 	is.NoErr(err)
 	defer stream.Close()
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Data: []byte("1"),
 	})
 	is.NoErr(err)
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Data: []byte("2"),
 	})
 	is.NoErr(err)
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Data: []byte("3"),
 	})
 	is.NoErr(err)
@@ -113,7 +113,7 @@ func TestMultipleClients(t *testing.T) {
 	stream2, err := sse.Dial(log, server.URL)
 	is.NoErr(err)
 	defer stream2.Close()
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Data: []byte("1"),
 	})
 	is.NoErr(err)
@@ -126,7 +126,7 @@ func TestMultipleClients(t *testing.T) {
 
 	is.NoErr(stream1.Close())
 
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Data: []byte("2"),
 	})
 	is.NoErr(err)
@@ -139,7 +139,7 @@ func TestMultipleClients(t *testing.T) {
 	is.Equal(string(event.Data), "2")
 	is.NoErr(stream2.Close())
 
-	err = handler.Broadcast(ctx, &sse.Event{
+	err = handler.Publish(ctx, &sse.Event{
 		Data: []byte("3"),
 	})
 	is.NoErr(err)
