@@ -3,11 +3,11 @@ package sse_test
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"github.com/livebud/log"
 	"github.com/livebud/sse"
 	"github.com/matryer/is"
 )
@@ -17,7 +17,7 @@ import (
 func TestHandlerClient(t *testing.T) {
 	is := is.New(t)
 	ctx := context.Background()
-	log := log.Discard()
+	log := slog.Default()
 	handler := sse.New(log)
 	server := httptest.NewServer(handler)
 	defer server.Close()
@@ -39,7 +39,7 @@ func TestHandlerClient(t *testing.T) {
 func TestMultipleEvents(t *testing.T) {
 	is := is.New(t)
 	ctx := context.Background()
-	log := log.Discard()
+	log := slog.Default()
 	handler := sse.New(log)
 	server := httptest.NewServer(handler)
 	defer server.Close()
@@ -75,7 +75,7 @@ func TestMultipleEvents(t *testing.T) {
 func TestNoLockup(t *testing.T) {
 	is := is.New(t)
 	ctx := context.Background()
-	log := log.Discard()
+	log := slog.Default()
 	handler := sse.New(log)
 	server := httptest.NewServer(handler)
 	defer server.Close()
@@ -103,7 +103,7 @@ func TestNoLockup(t *testing.T) {
 func TestMultipleClients(t *testing.T) {
 	is := is.New(t)
 	ctx := context.Background()
-	log := log.Debugger()
+	log := slog.Default()
 	handler := sse.New(log)
 	server := httptest.NewServer(handler)
 	defer server.Close()

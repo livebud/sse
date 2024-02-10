@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+// Minimal logger that allows you to pass in a *slog.Logger
+type logger interface {
+	Debug(string, ...any)
+}
+
 // https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
 type Event struct {
 	ID    string // id (optional)

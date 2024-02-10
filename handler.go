@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"sync/atomic"
-
-	"github.com/livebud/log"
 )
 
 func defaultPermitter(w http.ResponseWriter, r *http.Request) bool {
@@ -14,7 +12,7 @@ func defaultPermitter(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // New server-sent event (SSE) handler
-func New(log log.Log) *Handler {
+func New(log logger) *Handler {
 	var id atomic.Int64
 	return &Handler{
 		Permit: defaultPermitter,
@@ -22,7 +20,6 @@ func New(log log.Log) *Handler {
 			return fmt.Sprintf("%d", id.Add(1))
 		},
 		pub: newPublishers(log),
-		log: log,
 	}
 }
 
@@ -30,7 +27,6 @@ type Handler struct {
 	Permit   func(w http.ResponseWriter, r *http.Request) bool
 	Identity func(r *http.Request) string
 	pub      *publishers
-	log      log.Log
 }
 
 var _ http.Handler = (*Handler)(nil)
@@ -42,13 +38,13 @@ func (h *Handler) Publish(ctx context.Context, event *Event) error {
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !h.Permit(w, r) {
-		h.log.Errorf("sse: request not permitted")
+		http.Error(w, "sse: request not permitted", http.StatusForbidden)
 		return
 	}
 	publisher, err := Create(w)
 	if err != nil {
-		h.log.Errorf("sse: unable to create publisher: %w", err)
-		http.Error(w, err.Error(), 500)
+		err = fmt.Errorf("sse: unable to create publisher: %w", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// Add the client to the publisher

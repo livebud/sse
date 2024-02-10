@@ -2,9 +2,8 @@ package sse
 
 import (
 	"context"
+	"fmt"
 	"sync"
-
-	"github.com/livebud/log"
 )
 
 type client struct {
@@ -12,7 +11,7 @@ type client struct {
 	eventCh   chan *Event
 }
 
-func newPublishers(log log.Log) *publishers {
+func newPublishers(log logger) *publishers {
 	return &publishers{
 		log:     log,
 		clients: map[string]*client{},
@@ -20,7 +19,7 @@ func newPublishers(log log.Log) *publishers {
 }
 
 type publishers struct {
-	log     log.Log
+	log     logger
 	mu      sync.RWMutex
 	clients map[string]*client
 }
@@ -52,7 +51,7 @@ func (b *publishers) Publish(ctx context.Context, event *Event) error {
 	for id, client := range b.clients {
 		select {
 		case client.eventCh <- event:
-			b.log.Debugf("sse: sent event to %s", id)
+			b.log.Debug(fmt.Sprintf("sse: sent event to %s", id))
 			continue
 		case <-ctx.Done():
 			return ctx.Err()

@@ -10,19 +10,17 @@ import (
 	"net/http"
 	"sync"
 	"time"
-
-	"github.com/livebud/log"
 )
 
 var ErrStreamClosed = errors.New("sse: stream closed")
 
 // Dial creates a server-sent event (SSE) stream
-func Dial(log log.Log, url string) (*Stream, error) {
+func Dial(log logger, url string) (*Stream, error) {
 	return DialWith(http.DefaultClient, log, url)
 }
 
 // DialWith creates a server-sent event (SSE) stream with a custom HTTP client.
-func DialWith(client *http.Client, log log.Log, url string) (*Stream, error) {
+func DialWith(client *http.Client, log logger, url string) (*Stream, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -45,7 +43,7 @@ func DialWith(client *http.Client, log log.Log, url string) (*Stream, error) {
 }
 
 type Stream struct {
-	log     log.Log
+	log     logger
 	res     *http.Response
 	eventCh chan *Event
 	errorCh chan error
