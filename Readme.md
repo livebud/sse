@@ -25,17 +25,17 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/livebud/log"
 	"github.com/livebud/sse"
 )
 
 func main() {
 	ctx := context.Background()
-	log := log.Discard()
+	log := slog.Default()
 	handler := sse.New(log)
 	go http.ListenAndServe(":8080", handler)
 	ticker := time.NewTicker(time.Second)
