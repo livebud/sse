@@ -55,8 +55,13 @@ From the browser:
 
 ```js
 const es = new EventSource("/")
+// listen for messages
 es.addEventListener("message", function (e) {
   console.log("got message", e.data)
+})
+// cleanup afterwards (too many zombie clients may cause server to hang)
+window.addEventListener("beforeunload", function () {
+  es && es.close()
 })
 ```
 
