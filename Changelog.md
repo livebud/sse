@@ -1,3 +1,7 @@
+# 0.0.4 / 2025-03-23
+
+- switch to expecting slog and ensure we're removing listeners
+
 # 0.0.3 / 2024-02-10
 
 - replace github.com/livebud/log dependency with a minimal interface compatible with slog
