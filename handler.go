@@ -3,6 +3,7 @@ package sse
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"sync/atomic"
 )
@@ -12,12 +13,12 @@ func defaultPermitter(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // New server-sent event (SSE) handler
-func New(log logger) *Handler {
+func New(log *slog.Logger) *Handler {
 	var id atomic.Int64
 	return &Handler{
 		Permit: defaultPermitter,
 		Identity: func(r *http.Request) string {
-			return fmt.Sprintf("%d", id.Add(1))
+			return fmt.Sprintf("c%d", id.Add(1))
 		},
 		pub: newPublishers(log),
 	}

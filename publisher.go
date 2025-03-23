@@ -18,10 +18,10 @@ func Create(w http.ResponseWriter) (Publisher, error) {
 	}
 	// Set the appropriate response headers
 	headers := w.Header()
-	headers.Add(`Content-Type`, `text/event-stream`)
-	headers.Add(`Cache-Control`, `no-cache`)
-	headers.Add(`Connection`, `keep-alive`)
-	headers.Add(`Access-Control-Allow-Origin`, "*")
+	headers.Set(`Content-Type`, `text/event-stream`)
+	headers.Set(`Cache-Control`, `no-cache`)
+	headers.Set(`Connection`, `keep-alive`)
+	headers.Set(`Access-Control-Allow-Origin`, "*")
 	w.WriteHeader(http.StatusOK)
 	// Flush the headers
 	flusher.Flush()

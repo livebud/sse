@@ -2,7 +2,7 @@ package sse
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"sync"
 )
 
@@ -11,15 +11,15 @@ type client struct {
 	eventCh   chan *Event
 }
 
-func newPublishers(log logger) *publishers {
+func newPublishers(log *slog.Logger) *publishers {
 	return &publishers{
-		log:     log,
+		log:     log.With(slog.String("scope", "sse")),
 		clients: map[string]*client{},
 	}
 }
 
 type publishers struct {
-	log     logger
+	log     *slog.Logger
 	mu      sync.RWMutex
 	clients map[string]*client
 }
@@ -30,6 +30,7 @@ func (b *publishers) Set(id string, publisher Publisher) <-chan *Event {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	eventCh := make(chan *Event)
+	b.log.Debug("added listener", slog.String("client", id))
 	b.clients[id] = &client{
 		publisher: publisher,
 		eventCh:   eventCh,
@@ -41,6 +42,7 @@ func (b *publishers) Remove(id string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	delete(b.clients, id)
+	b.log.Debug("removed listener", slog.String("client", id))
 }
 
 // Publish an event to all clients. If a client is slow to receive events,
@@ -51,7 +53,7 @@ func (b *publishers) Publish(ctx context.Context, event *Event) error {
 	for id, client := range b.clients {
 		select {
 		case client.eventCh <- event:
-			b.log.Debug(fmt.Sprintf("sse: sent event to %s", id))
+			b.log.Debug("sent event", slog.String("client", id))
 			continue
 		case <-ctx.Done():
 			return ctx.Err()
