@@ -179,7 +179,7 @@ func parseLine(line []byte) (key []byte, value []byte) {
 	// Parse into key-value
 	key = line[:colon]
 	value = line[colon+1:]
-	if value[0] == ' ' {
+	if len(value) > 0 && value[0] == ' ' {
 		value = value[1:]
 	}
 	return key, value

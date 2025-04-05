@@ -27,9 +27,15 @@ func (e *Event) Format() *bytes.Buffer {
 		b.WriteString("event: " + e.Type + "\n")
 	}
 	if len(e.Data) > 0 {
-		b.WriteString("data: ")
-		b.Write(e.Data)
-		b.WriteByte('\n')
+		// Prefix each line with "data: "
+		lines := bytes.Split(e.Data, []byte{'\n'})
+		for _, line := range lines {
+			b.WriteString("data: ")
+			b.Write(line)
+			b.WriteByte('\n')
+		}
+	} else {
+		b.WriteString("data: \n")
 	}
 	if e.Retry > 0 {
 		b.WriteString("retry: " + strconv.Itoa(e.Retry) + "\n")
