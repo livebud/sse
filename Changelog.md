@@ -1,3 +1,9 @@
+# 0.0.5 / 2025-04-05
+
+- support multiline data
+- allow empty data values
+- remove old tests
+
 # 0.0.4 / 2025-03-23
 
 - switch to expecting slog and ensure we're removing listeners
